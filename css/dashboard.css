@@ -1711,6 +1711,7 @@ body {
         padding: 8px 12px;
         min-width: 60px;
         text-align: center;
+        border: none;
     }
 
     .nav-item i {
