@@ -1673,13 +1673,26 @@ body {
         margin-top: 12px;
     }
 
+    .header-right {
+        order: 2;
+        display: flex !important;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
     .search-container input {
         font-size: 16px; /* Prevents iOS zoom */
-        padding: 12px 16px;
+        padding: 12px 45px 12px 16px;
+        border: 1px solid #9ca3af !important;
+        width: calc(100% - 20px);
     }
 
     .search-btn {
         padding: 12px;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
     }
 
     /* Sidebar to Bottom Navigation */
@@ -1712,6 +1725,22 @@ body {
         min-width: 60px;
         text-align: center;
         border: none;
+        background: none !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    .nav-item:hover {
+        background: none !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    .nav-item.active {
+        background: none !important;
+        box-shadow: none !important;
+        transform: none !important;
+        border: none !important;
     }
 
     .nav-item i {
