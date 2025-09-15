@@ -875,37 +875,70 @@ function showNotesDisplay() {
     notesDisplay.style.display = 'block';
     notesContent.innerHTML = '';
 
-    // Sample notes for demonstration
-    const sampleNotes = [
+    // Comprehensive notes for each unit
+    const notesCollection = [
         {
-            title: `${selectedUnit} - Lecture Notes`,
-            content: `Comprehensive lecture notes covering all topics in ${selectedUnit}. Includes detailed explanations, examples, and practice problems.`,
-            type: 'PDF'
+            title: `${selectedUnit} - Complete Study Notes`,
+            content: `Comprehensive study material covering all key concepts, definitions, and theoretical aspects of ${selectedUnit}. Perfect for examination preparation with detailed explanations and examples.`,
+            type: 'PDF',
+            size: '2.5 MB',
+            pages: '45 pages'
         },
         {
-            title: `${selectedUnit} - Practice Questions`,
-            content: `Set of practice questions with solutions to help you prepare for examinations and improve understanding.`,
-            type: 'PDF'
+            title: `${selectedUnit} - Practice Questions & Solutions`,
+            content: `Extensive collection of practice questions with step-by-step solutions. Includes previous year questions, mock tests, and difficulty-wise categorized problems to enhance your problem-solving skills.`,
+            type: 'PDF',
+            size: '1.8 MB',
+            pages: '30 pages'
         },
         {
-            title: `${selectedUnit} - Video Lectures`,
-            content: `Recorded video lectures explaining key concepts with visual demonstrations and real-world examples.`,
-            type: 'Video'
+            title: `${selectedUnit} - Video Lectures Series`,
+            content: `HD video lectures explaining complex concepts with visual demonstrations, real-world examples, and interactive problem-solving sessions. Watch anytime, anywhere.`,
+            type: 'Video',
+            size: '850 MB',
+            duration: '4.5 hours'
+        },
+        {
+            title: `${selectedUnit} - Quick Revision Notes`,
+            content: `Concise revision material perfect for last-minute preparation. Contains important formulas, key points, diagrams, and memory tricks for quick recall during exams.`,
+            type: 'PDF',
+            size: '950 KB',
+            pages: '15 pages'
+        },
+        {
+            title: `${selectedUnit} - Assignment & Projects`,
+            content: `Practical assignments and project ideas related to ${selectedUnit}. Includes coding examples, case studies, and hands-on exercises to strengthen practical understanding.`,
+            type: 'PDF',
+            size: '3.2 MB',
+            pages: '25 pages'
+        },
+        {
+            title: `${selectedUnit} - Important Questions Bank`,
+            content: `Curated collection of most important questions likely to appear in examinations. Organized by difficulty level and marks distribution for strategic preparation.`,
+            type: 'PDF',
+            size: '1.2 MB',
+            pages: '20 pages'
         }
     ];
 
-    sampleNotes.forEach(note => {
+    notesCollection.forEach(note => {
         const noteCard = document.createElement('div');
         noteCard.className = 'note-card';
+
+        const fileInfo = note.type === 'Video' ?
+            `<div style="font-size: 12px; color: #666; margin-bottom: 8px;"><i class="fas fa-video"></i> ${note.size} • ${note.duration}</div>` :
+            `<div style="font-size: 12px; color: #666; margin-bottom: 8px;"><i class="fas fa-file-pdf"></i> ${note.size} • ${note.pages}</div>`;
+
         noteCard.innerHTML = `
             <div class="note-title">${note.title}</div>
+            ${fileInfo}
             <div class="note-content">${note.content}</div>
             <div class="note-actions">
-                <button class="note-btn btn-download">
+                <button class="note-btn btn-download" onclick="downloadFile('${note.title}', '${note.type}')">
                     <i class="fas fa-download"></i> Download ${note.type}
                 </button>
-                <button class="note-btn btn-view">
-                    <i class="fas fa-eye"></i> View Online
+                <button class="note-btn btn-view" onclick="viewOnline('${note.title}', '${note.type}')">
+                    <i class="fas fa-eye"></i> Read Online
                 </button>
             </div>
         `;
@@ -1010,14 +1043,102 @@ function displayProjects(course, searchTerm = '') {
                 this.textContent = 'Read More';
                 this.setAttribute('data-expanded', 'false');
             } else {
-                // Expand
-                descElement.innerHTML = project.description;
-                descElement.className = 'project-description expanded';
+                // Expand to show full project with mini sections
+                showFullProjectView(course, index, project);
                 this.textContent = 'Read Less';
                 this.setAttribute('data-expanded', 'true');
             }
         });
     });
+}
+
+function showFullProjectView(course, index, project) {
+    const descElement = document.getElementById(`desc-${course}-${index}`);
+
+    // Create mini project sections based on project type
+    const miniProjects = generateMiniProjects(project, course);
+
+    descElement.innerHTML = `
+        <div class="project-description expanded">
+            ${project.description}
+        </div>
+        <div class="mini-projects-section" style="margin-top: 20px;">
+            <h5 style="color: #1976d2; margin-bottom: 15px; font-size: 16px;">📋 Project Components & Build Guide</h5>
+            ${miniProjects.map((mini, idx) => `
+                <div class="mini-project-card" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <h6 style="color: #495057; margin: 0; font-size: 14px; font-weight: 600;">${mini.title}</h6>
+                        <span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${mini.type}</span>
+                    </div>
+                    <p style="color: #6c757d; font-size: 13px; line-height: 1.4; margin: 8px 0;">${mini.description}</p>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button class="mini-project-btn" onclick="readAboutProject('${project.title}', '${mini.title}', '${course}')"
+                                style="background: #fff3e0; color: #e65100; border: 1px solid #ffcc02; padding: 4px 8px; border-radius: 5px; font-size: 11px; cursor: pointer;">
+                            <i class="fas fa-info-circle"></i> About
+                        </button>
+                        <button class="mini-project-btn" onclick="readMiniProject('${project.title}', '${mini.title}', '${course}', ${idx})"
+                                style="background: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb; padding: 4px 8px; border-radius: 5px; font-size: 11px; cursor: pointer;">
+                            <i class="fas fa-book-open"></i> Guide
+                        </button>
+                        <button class="mini-project-btn" onclick="downloadMiniProject('${project.title}', '${mini.title}', '${course}')"
+                                style="background: #e8f5e8; color: #2e7d32; border: 1px solid #c8e6c9; padding: 4px 8px; border-radius: 5px; font-size: 11px; cursor: pointer;">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    descElement.className = 'project-description expanded';
+}
+
+function generateMiniProjects(project, course) {
+    // Generate relevant mini-projects based on the main project
+    const baseProjects = [
+        {
+            title: "Project Setup & Architecture",
+            type: "Setup",
+            description: "Complete guide for setting up development environment, project structure, and basic architecture design."
+        },
+        {
+            title: "Database Design & Implementation",
+            type: "Database",
+            description: "Database schema design, table creation, relationships, and data modeling for the project."
+        },
+        {
+            title: "Core Features Development",
+            type: "Development",
+            description: "Step-by-step implementation of main features with code examples and best practices."
+        },
+        {
+            title: "User Interface & Design",
+            type: "Frontend",
+            description: "UI/UX design principles, responsive layouts, and user-friendly interface development."
+        },
+        {
+            title: "Testing & Deployment",
+            type: "DevOps",
+            description: "Testing strategies, debugging techniques, and deployment procedures for production."
+        }
+    ];
+
+    // Add course-specific mini projects
+    if (course === 'mba') {
+        baseProjects.push({
+            title: "Business Analysis & Strategy",
+            type: "Business",
+            description: "Market analysis, business model canvas, financial projections, and strategic planning."
+        });
+    } else if (course === 'bca' || course === 'mca') {
+        baseProjects.push({
+            title: "Advanced Programming Techniques",
+            type: "Programming",
+            description: "Advanced coding patterns, optimization techniques, and performance improvements."
+        });
+    }
+
+    return baseProjects;
 }
 
 function initializeQuestionsData() {
@@ -1150,7 +1271,7 @@ function displayQuestions(course, year, semester, subject, unit) {
         { question: `Analyze the importance of ${unit} in modern applications`, marks: 15 }
     ];
 
-    sampleQuestions.forEach(q => {
+    sampleQuestions.forEach((q, index) => {
         const questionCard = document.createElement('div');
         questionCard.className = 'question-card';
         questionCard.innerHTML = `
@@ -1160,6 +1281,14 @@ function displayQuestions(course, year, semester, subject, unit) {
                 <span>Year: ${year}</span>
                 <span>Semester: ${semester}</span>
                 <span class="question-marks">${q.marks} Marks</span>
+            </div>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="note-btn btn-download" onclick="downloadQuestions('${course}', '${year}', '${semester}', '${subject}', '${unit}')">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+                <button class="note-btn btn-view" onclick="viewQuestionsOnline('${course}', '${year}', '${semester}', '${subject}', '${unit}')">
+                    <i class="fas fa-eye"></i> View Online
+                </button>
             </div>
         `;
         questionsList.appendChild(questionCard);
@@ -1465,9 +1594,14 @@ function setupFormSubmissions() {
 
 // Close modal when clicking outside
 document.addEventListener('click', function(e) {
-    const modal = document.getElementById('loginModal');
-    if (e.target === modal) {
+    const loginModal = document.getElementById('loginModal');
+    const notesModal = document.getElementById('notesViewerModal');
+
+    if (e.target === loginModal) {
         hideLoginModal();
+    }
+    if (e.target === notesModal) {
+        hideNotesViewer();
     }
 });
 
@@ -1475,5 +1609,1012 @@ document.addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         hideLoginModal();
+        hideNotesViewer();
     }
 });
+
+// Notes download and view functions
+function downloadFile(title, type) {
+    // Generate realistic file content
+    const fileName = title.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+    const extension = type === 'Video' ? 'mp4' : 'pdf';
+
+    // Create downloadable content
+    let content = '';
+    if (type === 'PDF') {
+        content = generatePDFContent(title);
+    } else if (type === 'Video') {
+        // For video, we'll simulate download
+        showNotification(`Downloading ${title}...`, 'success');
+        setTimeout(() => {
+            showNotification(`${title} downloaded successfully! (Video file simulation)`, 'success');
+        }, 2000);
+        return;
+    }
+
+    // Create blob and download link for PDF content
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${fileName}.txt`; // Using .txt for demo (would be .pdf in real implementation)
+
+    // Show download notification
+    showNotification(`Downloading ${title}...`, 'success');
+
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // Show success notification
+    setTimeout(() => {
+        showNotification(`${title} downloaded successfully!`, 'success');
+    }, 1000);
+}
+
+function viewOnline(title, type) {
+    // Open content in modal viewer
+    if (type === 'Video') {
+        showVideoPlayer(title);
+    } else {
+        showNotesViewer(title, type);
+    }
+}
+
+function showNotesViewer(title, type) {
+    const modal = document.getElementById('notesViewerModal');
+    const titleElement = document.getElementById('notesViewerTitle');
+    const contentElement = document.getElementById('notesViewerContent');
+
+    // Show course name in the title
+    const courseName = courseData[selectedCourse]?.name || 'Course';
+    titleElement.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span>${title}</span>
+            <span style="background: #e3f2fd; color: #1976d2; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                ${courseName}
+            </span>
+        </div>
+    `;
+
+    // Generate content based on title and type
+    const content = generatePDFContent(title);
+    contentElement.innerHTML = `
+        <div style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #333;">
+            ${content}
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function hideNotesViewer() {
+    const modal = document.getElementById('notesViewerModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function showVideoPlayer(title) {
+    const modal = document.getElementById('notesViewerModal');
+    const titleElement = document.getElementById('notesViewerTitle');
+    const contentElement = document.getElementById('notesViewerContent');
+
+    // Show course name in the title
+    const courseName = courseData[selectedCourse]?.name || 'Course';
+    titleElement.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span>${title}</span>
+            <span style="background: #e3f2fd; color: #1976d2; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                ${courseName}
+            </span>
+        </div>
+    `;
+    contentElement.innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+            <div style="background: #000; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <i class="fas fa-play-circle" style="font-size: 80px; color: #fff; margin-bottom: 20px;"></i>
+                <h3 style="color: #fff; margin-bottom: 10px;">Video Player</h3>
+                <p style="color: #ccc;">Playing: ${title}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: left;">
+                <h4>Video Content Description:</h4>
+                <p>This video lecture covers comprehensive topics related to ${selectedUnit || 'the selected unit'}.
+                   The content includes detailed explanations, practical examples, and step-by-step demonstrations
+                   to help students understand complex concepts effectively.</p>
+                <ul style="margin-top: 15px;">
+                    <li>Interactive explanations with visual aids</li>
+                    <li>Real-world examples and case studies</li>
+                    <li>Problem-solving techniques</li>
+                    <li>Key concepts and formulas</li>
+                    <li>Practice exercises and solutions</li>
+                </ul>
+            </div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function generatePDFContent(title) {
+    // Generate realistic educational content based on the title
+    const unit = selectedUnit || 'Selected Unit';
+    const subject = selectedSubject || 'Subject';
+
+    return `
+        <h1 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">${title}</h1>
+
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1976d2; margin: 0 0 10px 0;">📚 Course Information</h3>
+            <p><strong>Subject:</strong> ${subject}</p>
+            <p><strong>Unit:</strong> ${unit}</p>
+            <p><strong>Document Type:</strong> Study Material</p>
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">🎯 Learning Objectives</h2>
+        <ul style="line-height: 1.8;">
+            <li>Understand the fundamental concepts of ${unit}</li>
+            <li>Apply theoretical knowledge to practical problems</li>
+            <li>Analyze different approaches and methodologies</li>
+            <li>Develop problem-solving skills</li>
+            <li>Prepare for examinations and assessments</li>
+        </ul>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">📖 Content Overview</h2>
+        <p>This comprehensive study material covers all essential topics within ${unit}. The content is structured
+        to provide a systematic understanding of the subject matter, starting from basic concepts and progressing
+        to advanced applications.</p>
+
+        <h3 style="color: #1565c0; margin-top: 25px;">Key Topics Covered:</h3>
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 15px 0;">
+            <ol style="line-height: 1.8;">
+                <li><strong>Introduction and Fundamentals</strong>
+                    <ul style="margin-top: 5px;">
+                        <li>Basic definitions and terminology</li>
+                        <li>Historical background and evolution</li>
+                        <li>Scope and applications</li>
+                    </ul>
+                </li>
+                <li><strong>Core Concepts and Principles</strong>
+                    <ul style="margin-top: 5px;">
+                        <li>Theoretical foundations</li>
+                        <li>Mathematical models and formulations</li>
+                        <li>Key algorithms and processes</li>
+                    </ul>
+                </li>
+                <li><strong>Practical Applications</strong>
+                    <ul style="margin-top: 5px;">
+                        <li>Real-world case studies</li>
+                        <li>Industry implementations</li>
+                        <li>Problem-solving techniques</li>
+                    </ul>
+                </li>
+                <li><strong>Advanced Topics</strong>
+                    <ul style="margin-top: 5px;">
+                        <li>Current research trends</li>
+                        <li>Emerging technologies</li>
+                        <li>Future developments</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">💡 Important Formulas and Concepts</h2>
+        <div style="background: #fff3e0; padding: 20px; border-radius: 8px; border-left: 4px solid #ff9800;">
+            <p><strong>Key Formula 1:</strong> Mathematical representation of core principle</p>
+            <p><strong>Key Formula 2:</strong> Calculation methodology for problem solving</p>
+            <p><strong>Key Formula 3:</strong> Optimization and efficiency measures</p>
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">🔍 Sample Problems and Solutions</h2>
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 8px;">
+            <h4>Problem 1:</h4>
+            <p>A comprehensive problem related to ${unit} that demonstrates practical application of concepts.</p>
+            <h4>Solution:</h4>
+            <p>Step-by-step solution approach with detailed explanations and calculations.</p>
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">📝 Summary and Key Points</h2>
+        <ul style="line-height: 1.8; background: #f3e5f5; padding: 20px; border-radius: 8px;">
+            <li>Comprehensive understanding of ${unit} fundamentals</li>
+            <li>Practical application of theoretical concepts</li>
+            <li>Problem-solving methodologies and techniques</li>
+            <li>Industry relevance and real-world applications</li>
+            <li>Preparation for advanced topics and examinations</li>
+        </ul>
+
+        <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin-top: 30px; border-left: 4px solid #f44336;">
+            <h3 style="color: #c62828; margin: 0 0 10px 0;">📋 Examination Tips</h3>
+            <ul style="margin: 0;">
+                <li>Focus on understanding concepts rather than memorization</li>
+                <li>Practice numerical problems regularly</li>
+                <li>Review previous year question papers</li>
+                <li>Create summary notes for quick revision</li>
+                <li>Discuss difficult topics with peers and instructors</li>
+            </ul>
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+        <p style="text-align: center; color: #666; font-style: italic;">
+            This study material is designed to enhance your understanding of ${unit}.<br>
+            For additional resources and clarifications, contact your course instructor.
+        </p>
+    `;
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10001;
+        font-weight: 500;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+    `;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+
+    // Animate out and remove
+    setTimeout(() => {
+        notification.style.transform = 'translateX(400px)';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Important Questions download and view functions
+function downloadQuestions(course, year, semester, subject, unit) {
+    const fileName = `Important_Questions_${course.toUpperCase()}_Year${year}_Sem${semester}_${subject.replace(/\s+/g, '_')}`;
+    const content = generateQuestionsContent(course, year, semester, subject, unit);
+
+    // Create blob and download link
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${fileName}.txt`; // Using .txt for demo
+
+    // Show download notification
+    showNotification(`Downloading Important Questions...`, 'success');
+
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // Show success notification
+    setTimeout(() => {
+        showNotification(`Important Questions downloaded successfully!`, 'success');
+    }, 1000);
+}
+
+function viewQuestionsOnline(course, year, semester, subject, unit) {
+    const title = `Important Questions - ${subject} (${unit})`;
+    const modal = document.getElementById('notesViewerModal');
+    const titleElement = document.getElementById('notesViewerTitle');
+    const contentElement = document.getElementById('notesViewerContent');
+
+    // Show course name in the title
+    const courseName = course.toUpperCase();
+    titleElement.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="font-size: 18px;">${title}</span>
+            <span style="background: #e3f2fd; color: #1976d2; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                ${courseName}
+            </span>
+        </div>
+    `;
+
+    // Generate questions content
+    const content = generateQuestionsContent(course, year, semester, subject, unit);
+    contentElement.innerHTML = `
+        <div style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #333;">
+            ${content}
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function generateQuestionsContent(course, year, semester, subject, unit) {
+    // Generate comprehensive question paper content
+    return `
+        <h1 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px; text-align: center;">
+            Important Questions - ${subject}
+        </h1>
+
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1976d2; margin: 0 0 10px 0;">📋 Examination Details</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <p><strong>Course:</strong> ${course.toUpperCase()}</p>
+                <p><strong>Year:</strong> ${year}</p>
+                <p><strong>Semester:</strong> ${semester}</p>
+                <p><strong>Subject:</strong> ${subject}</p>
+                <p><strong>Unit:</strong> ${unit}</p>
+                <p><strong>Total Time:</strong> 3 Hours</p>
+            </div>
+        </div>
+
+        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #e65100; margin: 0 0 10px 0;">⚠️ Instructions</h3>
+            <ul style="margin: 5px 0;">
+                <li>Answer ALL questions from Section A (Short Answer Questions)</li>
+                <li>Answer ANY FOUR questions from Section B (Long Answer Questions)</li>
+                <li>All questions carry equal marks unless specified</li>
+                <li>Use of calculator is permitted</li>
+                <li>Draw neat diagrams wherever necessary</li>
+            </ul>
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+            Section A - Short Answer Questions (2 marks each)
+        </h2>
+
+        <ol style="line-height: 2;">
+            <li>Define the basic concepts of ${unit} and explain their significance.</li>
+            <li>List the key features and characteristics of ${unit}.</li>
+            <li>What are the advantages and disadvantages of implementing ${unit}?</li>
+            <li>Explain the relationship between ${unit} and other related concepts.</li>
+            <li>Write short notes on the applications of ${unit} in real-world scenarios.</li>
+            <li>Compare and contrast different approaches used in ${unit}.</li>
+            <li>What are the common challenges faced while working with ${unit}?</li>
+            <li>Explain the evolution and historical development of ${unit}.</li>
+        </ol>
+
+        <h2 style="color: #1976d2; margin-top: 30px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+            Section B - Long Answer Questions (10 marks each)
+        </h2>
+
+        <ol style="line-height: 2;">
+            <li>
+                <strong>Comprehensive Analysis (10 marks)</strong><br>
+                Provide a detailed explanation of ${unit} including its theoretical foundations,
+                practical implementations, and current industry trends. Support your answer with
+                suitable examples and diagrams.
+            </li>
+
+            <li>
+                <strong>Problem Solving (10 marks)</strong><br>
+                Solve the following complex problem related to ${unit}:<br>
+                <em>Given a practical scenario involving ${unit}, design and implement a comprehensive
+                solution. Explain your approach, methodology, and justify your design decisions.</em>
+            </li>
+
+            <li>
+                <strong>Comparative Study (10 marks)</strong><br>
+                Compare and contrast different methodologies and approaches used in ${unit}.
+                Discuss their strengths, weaknesses, and suitable application areas. Provide
+                examples to support your analysis.
+            </li>
+
+            <li>
+                <strong>Case Study Analysis (10 marks)</strong><br>
+                Analyze a real-world case study related to ${unit}. Identify the challenges,
+                solutions implemented, and outcomes achieved. Suggest alternative approaches
+                and improvements.
+            </li>
+
+            <li>
+                <strong>Future Trends and Developments (10 marks)</strong><br>
+                Discuss the current research trends and future developments in ${unit}.
+                Explain emerging technologies, innovations, and their potential impact on
+                the field. Include your predictions for the next 5-10 years.
+            </li>
+
+            <li>
+                <strong>Implementation Project (10 marks)</strong><br>
+                Design and propose a comprehensive project based on ${unit}. Include project
+                objectives, methodology, timeline, resource requirements, expected outcomes,
+                and evaluation criteria.
+            </li>
+        </ol>
+
+        <h2 style="color: #1976d2; margin-top: 30px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+            Section C - Practical Questions (15 marks each)
+        </h2>
+
+        <ol style="line-height: 2;">
+            <li>
+                <strong>Hands-on Implementation (15 marks)</strong><br>
+                Write a complete program/solution to demonstrate the practical application of ${unit}.
+                Include proper documentation, comments, and test cases. Explain the logic and
+                working of your solution.
+            </li>
+
+            <li>
+                <strong>System Design (15 marks)</strong><br>
+                Design a complete system incorporating the principles of ${unit}. Draw system
+                architecture diagrams, explain components, interfaces, and data flow. Justify
+                your design choices.
+            </li>
+        </ol>
+
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 30px 0;">
+            <h3 style="color: #2e7d32; margin: 0 0 15px 0;">📚 Recommended Study Materials</h3>
+            <ul style="margin: 0;">
+                <li>Course textbook chapters related to ${unit}</li>
+                <li>Reference books and research papers</li>
+                <li>Online tutorials and video lectures</li>
+                <li>Previous year question papers</li>
+                <li>Laboratory manuals and practical exercises</li>
+                <li>Industry case studies and white papers</li>
+            </ul>
+        </div>
+
+        <div style="background: #f3e5f5; padding: 20px; border-radius: 8px; margin: 30px 0;">
+            <h3 style="color: #7b1fa2; margin: 0 0 15px 0;">💡 Exam Preparation Tips</h3>
+            <ul style="margin: 0;">
+                <li>Create a comprehensive study schedule covering all topics</li>
+                <li>Practice numerical problems and case studies regularly</li>
+                <li>Form study groups for discussion and doubt clarification</li>
+                <li>Prepare concise notes for quick revision</li>
+                <li>Take mock tests to assess your preparation level</li>
+                <li>Focus on understanding concepts rather than rote learning</li>
+                <li>Stay updated with current industry trends and developments</li>
+            </ul>
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+        <p style="text-align: center; color: #666; font-style: italic;">
+            <strong>Important:</strong> This question paper is for practice purposes.<br>
+            For official examinations, refer to the approved syllabus and question pattern.<br>
+            <strong>All the Best for your Examinations!</strong>
+        </p>
+    `;
+}
+
+// Mini Project functions
+function readMiniProject(projectTitle, miniTitle, course, index) {
+    const title = `${miniTitle} - ${projectTitle}`;
+    const modal = document.getElementById('notesViewerModal');
+    const titleElement = document.getElementById('notesViewerTitle');
+    const contentElement = document.getElementById('notesViewerContent');
+
+    // Show course name in the title
+    const courseName = course.toUpperCase();
+    titleElement.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="font-size: 16px;">${title}</span>
+            <span style="background: #e3f2fd; color: #1976d2; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                ${courseName}
+            </span>
+        </div>
+    `;
+
+    // Generate comprehensive mini project content
+    const content = generateMiniProjectContent(projectTitle, miniTitle, course, index);
+    contentElement.innerHTML = `
+        <div style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #333;">
+            ${content}
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function downloadMiniProject(projectTitle, miniTitle, course) {
+    const fileName = `${miniTitle.replace(/\s+/g, '_')}_${projectTitle.replace(/\s+/g, '_')}_${course.toUpperCase()}`;
+
+    // Create comprehensive downloadable package
+    const aboutContent = generateAboutProjectContent(projectTitle, miniTitle, course);
+    const guideContent = generateMiniProjectContent(projectTitle, miniTitle, course, 0);
+    const resourcesContent = generateResourcesContent(projectTitle, miniTitle, course);
+
+    const fullContent = `
+==========================================
+${miniTitle.toUpperCase()} - COMPLETE PACKAGE
+==========================================
+Main Project: ${projectTitle}
+Course: ${course.toUpperCase()}
+Generated on: ${new Date().toLocaleDateString()}
+
+==========================================
+PART 1: ABOUT & OVERVIEW
+==========================================
+
+${aboutContent}
+
+==========================================
+PART 2: IMPLEMENTATION GUIDE
+==========================================
+
+${guideContent}
+
+==========================================
+PART 3: ADDITIONAL RESOURCES
+==========================================
+
+${resourcesContent}
+
+==========================================
+END OF DOCUMENT
+==========================================
+    `;
+
+    // Create blob and download link
+    const blob = new Blob([fullContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${fileName}_COMPLETE_PACKAGE.txt`;
+
+    // Show download notification
+    showNotification(`Preparing ${miniTitle} complete package...`, 'info');
+
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // Show success notification
+    setTimeout(() => {
+        showNotification(`${miniTitle} complete package downloaded successfully!`, 'success');
+    }, 1000);
+}
+
+function generateMiniProjectContent(projectTitle, miniTitle, course, index) {
+    return `
+        <h1 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
+            ${miniTitle} - Implementation Guide
+        </h1>
+
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1976d2; margin: 0 0 10px 0;">📋 Project Information</h3>
+            <p><strong>Main Project:</strong> ${projectTitle}</p>
+            <p><strong>Component:</strong> ${miniTitle}</p>
+            <p><strong>Course:</strong> ${course.toUpperCase()}</p>
+            <p><strong>Difficulty Level:</strong> Intermediate to Advanced</p>
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">🎯 Objectives</h2>
+        <ul style="line-height: 1.8;">
+            <li>Understand the key concepts and requirements for ${miniTitle}</li>
+            <li>Learn step-by-step implementation process</li>
+            <li>Gain practical experience with industry-standard tools</li>
+            <li>Apply best practices and design patterns</li>
+            <li>Complete a working component for the main project</li>
+        </ul>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">📚 Prerequisites</h2>
+        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
+            <ul style="margin: 0;">
+                <li>Basic understanding of ${course === 'mba' ? 'business concepts and project management' : 'programming fundamentals'}</li>
+                <li>Familiarity with ${course === 'mba' ? 'market analysis and strategic planning' : 'database concepts and web development'}</li>
+                <li>Access to required development tools and software</li>
+                <li>Understanding of project requirements and scope</li>
+            </ul>
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">🔧 Implementation Steps</h2>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 15px 0;">
+            <h3 style="color: #1565c0;">Step 1: Planning and Analysis</h3>
+            <ul style="line-height: 1.8;">
+                <li>Define specific requirements for ${miniTitle}</li>
+                <li>Analyze dependencies and integration points</li>
+                <li>Create detailed design documentation</li>
+                <li>Set up development timeline and milestones</li>
+            </ul>
+        </div>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 15px 0;">
+            <h3 style="color: #1565c0;">Step 2: Environment Setup</h3>
+            <ul style="line-height: 1.8;">
+                <li>Install and configure required development tools</li>
+                <li>Set up project structure and directories</li>
+                <li>Initialize version control system</li>
+                <li>Configure development and testing environments</li>
+            </ul>
+        </div>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 15px 0;">
+            <h3 style="color: #1565c0;">Step 3: Core Development</h3>
+            <ul style="line-height: 1.8;">
+                <li>Implement basic functionality and core features</li>
+                <li>Follow coding standards and best practices</li>
+                <li>Add proper error handling and validation</li>
+                <li>Write comprehensive documentation</li>
+            </ul>
+        </div>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 15px 0;">
+            <h3 style="color: #1565c0;">Step 4: Testing and Optimization</h3>
+            <ul style="line-height: 1.8;">
+                <li>Perform unit testing and integration testing</li>
+                <li>Optimize performance and resource usage</li>
+                <li>Debug and fix identified issues</li>
+                <li>Conduct user acceptance testing</li>
+            </ul>
+        </div>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 15px 0;">
+            <h3 style="color: #1565c0;">Step 5: Integration and Deployment</h3>
+            <ul style="line-height: 1.8;">
+                <li>Integrate with other project components</li>
+                <li>Prepare deployment packages and documentation</li>
+                <li>Set up production environment</li>
+                <li>Deploy and monitor the implementation</li>
+            </ul>
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">💡 Key Technologies & Tools</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+            ${generateTechStack(course, miniTitle).map(tech => `
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; text-align: center;">
+                    <h4 style="color: #2e7d32; margin: 0 0 8px 0;">${tech.name}</h4>
+                    <p style="color: #388e3c; font-size: 13px; margin: 0;">${tech.purpose}</p>
+                </div>
+            `).join('')}
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">📋 Deliverables</h2>
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px;">
+            <ul style="line-height: 1.8; margin: 0;">
+                <li>✅ Fully functional ${miniTitle} implementation</li>
+                <li>✅ Comprehensive documentation and user guide</li>
+                <li>✅ Test cases and testing results</li>
+                <li>✅ Source code with proper comments</li>
+                <li>✅ Deployment guide and configuration files</li>
+                <li>✅ Performance analysis and optimization report</li>
+            </ul>
+        </div>
+
+        <h2 style="color: #1976d2; margin-top: 30px;">🚀 Next Steps</h2>
+        <div style="background: #f3e5f5; padding: 20px; border-radius: 8px;">
+            <p><strong>After completing this component:</strong></p>
+            <ul style="line-height: 1.8;">
+                <li>Integrate with other project modules</li>
+                <li>Conduct comprehensive system testing</li>
+                <li>Prepare for final project presentation</li>
+                <li>Document lessons learned and improvements</li>
+                <li>Plan for future enhancements and scaling</li>
+            </ul>
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+        <p style="text-align: center; color: #666; font-style: italic;">
+            <strong>Success Tip:</strong> Break down complex tasks into smaller, manageable chunks.<br>
+            Focus on understanding concepts before implementation, and don't hesitate to seek help when needed.<br>
+            <strong>Good luck with your ${miniTitle} implementation!</strong>
+        </p>
+    `;
+}
+
+function generateTechStack(course, miniTitle) {
+    const baseTech = [
+        { name: "Git", purpose: "Version Control" },
+        { name: "Documentation", purpose: "Project Docs" }
+    ];
+
+    if (course === 'mba') {
+        return [
+            { name: "Excel/Sheets", purpose: "Data Analysis" },
+            { name: "PowerBI", purpose: "Visualization" },
+            { name: "Project Management", purpose: "Planning Tools" },
+            ...baseTech
+        ];
+    } else {
+        return [
+            { name: "Database", purpose: "Data Storage" },
+            { name: "Framework", purpose: "Development" },
+            { name: "Testing Tools", purpose: "Quality Assurance" },
+            ...baseTech
+        ];
+    }
+}
+
+// Read About Project function
+function readAboutProject(projectTitle, miniTitle, course) {
+    const title = `About: ${miniTitle}`;
+    const modal = document.getElementById('notesViewerModal');
+    const titleElement = document.getElementById('notesViewerTitle');
+    const contentElement = document.getElementById('notesViewerContent');
+
+    // Show course name in the title
+    const courseName = course.toUpperCase();
+    titleElement.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="font-size: 16px;">${title}</span>
+            <span style="background: #e3f2fd; color: #1976d2; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                ${courseName}
+            </span>
+        </div>
+    `;
+
+    // Generate about project content
+    const content = generateAboutProjectContent(projectTitle, miniTitle, course);
+    contentElement.innerHTML = `
+        <div style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #333;">
+            ${content}
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function generateAboutProjectContent(projectTitle, miniTitle, course) {
+    return `
+        <h1 style="color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px;">
+            ${miniTitle} Overview
+        </h1>
+
+        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff9800;">
+            <h3 style="color: #e65100; margin: 0 0 10px 0;">📋 Component Information</h3>
+            <p><strong>Main Project:</strong> ${projectTitle}</p>
+            <p><strong>Component:</strong> ${miniTitle}</p>
+            <p><strong>Course:</strong> ${course.toUpperCase()}</p>
+            <p><strong>Importance:</strong> Essential building block</p>
+        </div>
+
+        <h2 style="color: #e65100; margin-top: 30px;">🔍 What is ${miniTitle}?</h2>
+        <p style="background: #f5f5f5; padding: 20px; border-radius: 8px; font-size: 16px; line-height: 1.7;">
+            ${miniTitle} is a critical component of ${projectTitle} that focuses on ${getComponentPurpose(miniTitle)}.
+            This component ensures ${getComponentBenefit(miniTitle)} and provides the foundation for successful project implementation.
+        </p>
+
+        <h2 style="color: #e65100; margin-top: 30px;">🎯 Why is it Important?</h2>
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 8px;">
+            <ul style="line-height: 1.8;">
+                <li><strong>Foundation:</strong> Provides essential groundwork for the entire ${projectTitle}</li>
+                <li><strong>Quality Assurance:</strong> Ensures high standards and best practices implementation</li>
+                <li><strong>Scalability:</strong> Enables future growth and feature additions</li>
+                <li><strong>Maintainability:</strong> Makes the project easy to update and modify</li>
+                <li><strong>Professional Standards:</strong> Follows industry-standard practices and patterns</li>
+            </ul>
+        </div>
+
+        <h2 style="color: #e65100; margin-top: 30px;">📊 Key Features & Benefits</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+            ${getComponentFeatures(miniTitle).map(feature => `
+                <div style="background: #fff; border: 2px solid #ffcc02; border-radius: 8px; padding: 15px; text-align: center;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">${feature.icon}</div>
+                    <h4 style="color: #e65100; margin: 0 0 8px 0;">${feature.name}</h4>
+                    <p style="color: #666; font-size: 13px; margin: 0;">${feature.description}</p>
+                </div>
+            `).join('')}
+        </div>
+
+        <h2 style="color: #e65100; margin-top: 30px;">🛠️ What You'll Learn</h2>
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px;">
+            <ul style="line-height: 1.8;">
+                <li>How to properly implement ${miniTitle} in ${projectTitle}</li>
+                <li>Best practices and industry standards for ${miniTitle}</li>
+                <li>Common pitfalls and how to avoid them</li>
+                <li>Integration techniques with other project components</li>
+                <li>Performance optimization strategies</li>
+                <li>Testing and debugging approaches</li>
+            </ul>
+        </div>
+
+        <h2 style="color: #e65100; margin-top: 30px;">⏰ Time Investment</h2>
+        <div style="background: #f3e5f5; padding: 20px; border-radius: 8px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div style="text-align: center;">
+                    <h4 style="color: #7b1fa2; margin: 0;">Learning Time</h4>
+                    <p style="font-size: 18px; font-weight: 600; color: #7b1fa2; margin: 5px 0;">2-4 hours</p>
+                </div>
+                <div style="text-align: center;">
+                    <h4 style="color: #7b1fa2; margin: 0;">Implementation</h4>
+                    <p style="font-size: 18px; font-weight: 600; color: #7b1fa2; margin: 5px 0;">4-8 hours</p>
+                </div>
+                <div style="text-align: center;">
+                    <h4 style="color: #7b1fa2; margin: 0;">Testing & Debug</h4>
+                    <p style="font-size: 18px; font-weight: 600; color: #7b1fa2; margin: 5px 0;">2-3 hours</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="color: #e65100; margin-top: 30px;">🎓 Skill Level Required</h2>
+        <div style="background: #ffebee; padding: 20px; border-radius: 8px; border-left: 4px solid #f44336;">
+            <p><strong>Beginner Level:</strong> Basic understanding of ${course === 'mba' ? 'business concepts' : 'programming fundamentals'}</p>
+            <p><strong>Tools Needed:</strong> ${getRequiredTools(course, miniTitle).join(', ')}</p>
+            <p><strong>Prerequisites:</strong> Completion of previous project components (if any)</p>
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+        <div style="text-align: center; background: #fff3e0; padding: 20px; border-radius: 8px; border: 2px solid #ffcc02;">
+            <h3 style="color: #e65100; margin: 0 0 10px 0;">Ready to Get Started?</h3>
+            <p style="color: #666; margin: 0;">Click the "Guide" button to access the step-by-step implementation tutorial,<br>
+            or "Download" to get all the resources offline!</p>
+        </div>
+    `;
+}
+
+function getComponentPurpose(miniTitle) {
+    const purposes = {
+        'Project Setup & Architecture': 'establishing the foundational structure and development environment',
+        'Database Design & Implementation': 'creating efficient data storage and management systems',
+        'Core Features Development': 'building the main functionality and business logic',
+        'User Interface & Design': 'creating intuitive and responsive user experiences',
+        'Testing & Deployment': 'ensuring quality and preparing for production release',
+        'Business Analysis & Strategy': 'analyzing market needs and strategic planning',
+        'Advanced Programming Techniques': 'implementing sophisticated coding patterns and optimizations'
+    };
+    return purposes[miniTitle] || 'implementing essential project functionality';
+}
+
+function getComponentBenefit(miniTitle) {
+    const benefits = {
+        'Project Setup & Architecture': 'proper project organization and maintainable code structure',
+        'Database Design & Implementation': 'efficient data handling and optimal performance',
+        'Core Features Development': 'robust functionality and reliable business logic',
+        'User Interface & Design': 'excellent user experience and accessibility',
+        'Testing & Deployment': 'bug-free operation and smooth production deployment',
+        'Business Analysis & Strategy': 'strategic clarity and market-driven decisions',
+        'Advanced Programming Techniques': 'optimized performance and scalable solutions'
+    };
+    return benefits[miniTitle] || 'successful project implementation';
+}
+
+function getComponentFeatures(miniTitle) {
+    const features = {
+        'Project Setup & Architecture': [
+            { icon: '🏗️', name: 'Structure', description: 'Organized project layout' },
+            { icon: '⚙️', name: 'Configuration', description: 'Environment setup' },
+            { icon: '📁', name: 'Organization', description: 'File management' }
+        ],
+        'Database Design & Implementation': [
+            { icon: '🗄️', name: 'Schema', description: 'Data structure design' },
+            { icon: '🔗', name: 'Relations', description: 'Table relationships' },
+            { icon: '⚡', name: 'Performance', description: 'Query optimization' }
+        ],
+        'Core Features Development': [
+            { icon: '⚙️', name: 'Logic', description: 'Business rules' },
+            { icon: '🔧', name: 'Functions', description: 'Core operations' },
+            { icon: '🎯', name: 'Features', description: 'User requirements' }
+        ],
+        'User Interface & Design': [
+            { icon: '🎨', name: 'Design', description: 'Visual appeal' },
+            { icon: '📱', name: 'Responsive', description: 'Mobile friendly' },
+            { icon: '🖱️', name: 'Interactive', description: 'User engagement' }
+        ],
+        'Testing & Deployment': [
+            { icon: '🧪', name: 'Testing', description: 'Quality assurance' },
+            { icon: '🚀', name: 'Deploy', description: 'Production ready' },
+            { icon: '🔍', name: 'Debug', description: 'Issue resolution' }
+        ]
+    };
+    return features[miniTitle] || [
+        { icon: '💡', name: 'Innovation', description: 'Creative solutions' },
+        { icon: '🎯', name: 'Efficiency', description: 'Optimized approach' },
+        { icon: '🔧', name: 'Practical', description: 'Real-world application' }
+    ];
+}
+
+function getRequiredTools(course, miniTitle) {
+    if (course === 'mba') {
+        return ['Computer', 'Internet', 'Office Suite', 'Project Management Tools'];
+    }
+    return ['Code Editor', 'Database Software', 'Development Environment', 'Version Control'];
+}
+
+function generateResourcesContent(projectTitle, miniTitle, course) {
+    return `
+ADDITIONAL RESOURCES FOR ${miniTitle.toUpperCase()}
+==================================================
+
+📚 LEARNING MATERIALS
+---------------------
+• Official documentation and tutorials
+• Video course recommendations
+• Best practices guide
+• Industry case studies
+• Sample code repositories
+
+🛠️ DEVELOPMENT TOOLS
+--------------------
+${getRequiredTools(course, miniTitle).map(tool => `• ${tool}`).join('\n')}
+
+📖 REFERENCE LINKS
+------------------
+• Official documentation: https://docs.example.com
+• Community forums: https://community.example.com
+• GitHub repositories: https://github.com/examples
+• Stack Overflow discussions
+• YouTube tutorials and walkthroughs
+
+🎯 PRACTICE EXERCISES
+--------------------
+• Exercise 1: Basic ${miniTitle} implementation
+• Exercise 2: Advanced feature integration
+• Exercise 3: Performance optimization
+• Exercise 4: Error handling and debugging
+• Exercise 5: Real-world application scenarios
+
+📋 CHECKLISTS
+-------------
+Pre-Development Checklist:
+□ Environment setup completed
+□ Required tools installed
+□ Dependencies configured
+□ Project structure created
+□ Version control initialized
+
+Development Checklist:
+□ Core functionality implemented
+□ Error handling added
+□ Code documented
+□ Unit tests written
+□ Integration tests passed
+
+Deployment Checklist:
+□ Code reviewed and approved
+□ Performance optimized
+□ Security checks completed
+□ Documentation updated
+□ Deployment environment ready
+
+🔧 TROUBLESHOOTING GUIDE
+-----------------------
+Common Issues and Solutions:
+
+Issue: Environment setup problems
+Solution: Check system requirements and dependencies
+
+Issue: Code compilation errors
+Solution: Verify syntax and imports
+
+Issue: Performance bottlenecks
+Solution: Profile code and optimize critical paths
+
+Issue: Integration failures
+Solution: Check API compatibility and data formats
+
+📊 SUCCESS METRICS
+------------------
+• Completion time: Track your progress
+• Code quality: Maintain high standards
+• Test coverage: Aim for comprehensive testing
+• Performance benchmarks: Meet target metrics
+• User feedback: Gather and incorporate feedback
+
+🎓 NEXT STEPS AFTER COMPLETION
+------------------------------
+1. Integrate with other project components
+2. Conduct comprehensive testing
+3. Optimize for production deployment
+4. Document lessons learned
+5. Plan for future enhancements
+6. Share knowledge with team members
+
+📞 SUPPORT & COMMUNITY
+---------------------
+• Join our Discord community: [Link]
+• Follow us on social media: [Links]
+• Subscribe to our newsletter: [Link]
+• Submit feedback and suggestions: [Link]
+• Report bugs and issues: [Link]
+
+Remember: Learning is a journey, not a destination. Take your time,
+practice regularly, and don't hesitate to ask for help when needed!
+
+Good luck with your ${miniTitle} implementation! 🚀
+    `;
+}

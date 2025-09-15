@@ -29,15 +29,15 @@ body {
 .header-left .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 20px;
     color: #000000;
 }
 
 .header-left .logo i {
     color: #7c3aed;
-    font-size: 20px;
+    font-size: 26px;
 }
 
 .header-center .search-container {
@@ -73,28 +73,29 @@ main .search-container {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #ffffff;
+    background: transparent;
     border: 1px solid #d1d5db;
-    border-radius: 8px;
+    border-radius: 16px;
     padding: 4px;
 }
 
 main .search-container input {
     flex: 1;
-    padding: 16px 20px;
+    padding: 6px 20px;
     border: none;
     background: transparent;
     font-size: 16px;
     outline: none;
     color: #000000;
+    border-radius: 12px;
 }
 
 main .search-container .search-btn {
     position: relative;
     right: auto;
-    padding: 16px 20px;
-    background: #1e3a8a;
-    color: white;
+    padding: 6px 12px;
+    background: transparent;
+    color: #666;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -104,7 +105,7 @@ main .search-container .search-btn {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-width: 100px;
+    min-width: 40px;
 }
 
 .header-right {
@@ -118,24 +119,24 @@ main .search-container .search-btn {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
-    color: white;
-    border: none;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
-    border: 2px solid rgba(156, 163, 175, 0.4);
 }
 
 .login-btn:hover {
-    background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+    background: #e5e7eb;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #9ca3af;
 }
 
 .login-btn i {
@@ -232,7 +233,7 @@ main .search-container .search-btn {
     color: #374151;
     font-weight: 600;
     margin: 4px 12px;
-    border: 2px solid rgba(156, 163, 175, 0.4);
+    border: 1px solid rgba(156, 163, 175, 0.4);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.9));
 }
 
@@ -1734,10 +1735,10 @@ main .search-container .search-btn {
     .search-container input {
         font-size: 16px; /* Prevents iOS zoom */
         padding: 16px 20px;
-        border: 1px solid #d1d5db !important;
+        border: none !important;
         flex: 1;
         box-sizing: border-box;
-        background: #ffffff !important;
+        background: transparent !important;
         color: #000000 !important;
         border-radius: 8px;
         outline: none;
@@ -1745,8 +1746,8 @@ main .search-container .search-btn {
 
     .search-btn {
         padding: 16px 20px;
-        background: #1e3a8a;
-        color: white;
+        background: transparent;
+        color: #666;
         border: none;
         border-radius: 8px;
         cursor: pointer;
@@ -1756,7 +1757,7 @@ main .search-container .search-btn {
         align-items: center;
         justify-content: center;
         gap: 8px;
-        min-width: 100px;
+        min-width: 40px;
         position: relative;
     }
 
@@ -1772,7 +1773,7 @@ main .search-container .search-btn {
         backdrop-filter: blur(20px);
         border-radius: 20px 20px 0 0;
         border: none;
-        border-top: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 1px solid #d1d5db;
         z-index: 1000;
     }
 
@@ -2397,5 +2398,94 @@ main .search-container .search-btn {
     .selection-breadcrumb .breadcrumb-item {
         font-size: 12px;
         padding: 4px 8px;
+    }
+
+    /* Project Cards Mobile Optimization */
+    .project-card {
+        margin: 0 0 20px 0;
+        padding: 15px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .project-description {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        line-height: 1.6;
+        hyphens: auto;
+    }
+
+    .project-description.expanded {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .mini-project-card {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        margin-bottom: 10px !important;
+        padding: 12px !important;
+    }
+
+    .mini-project-btn {
+        font-size: 11px !important;
+        padding: 4px 8px !important;
+        margin: 2px !important;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+    }
+
+    .mini-project-btn:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
+        opacity: 0.9 !important;
+    }
+
+    .mini-project-btn:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    }
+
+    .project-tags {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .project-tag {
+        font-size: 10px;
+        padding: 2px 6px;
+        white-space: nowrap;
+    }
+
+    /* Course Tabs Mobile Fix */
+    .course-tabs {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 2px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .course-tab {
+        flex: 1;
+        min-width: calc(25% - 2px);
+        padding: 8px 4px !important;
+        font-size: 11px !important;
+        font-weight: 600;
+        text-align: center;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(156, 163, 175, 0.3);
+        color: #333;
+        cursor: pointer;
+    }
+
+    .course-tab.active {
+        background: rgba(52, 152, 219, 0.3) !important;
+        color: #2563eb !important;
+        border-color: #3498db !important;
     }
 }
