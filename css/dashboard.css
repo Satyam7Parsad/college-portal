@@ -2028,10 +2028,38 @@ main .search-container .search-btn {
     /* Notes Content Mobile */
     .notes-content {
         gap: 12px;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
     }
 
     .note-card {
-        padding: 16px;
+        padding: 14px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-wrap: break-word !important;
+        word-wrap: break-word !important;
+        hyphens: auto !important;
+    }
+
+    .note-title {
+        font-size: 16px !important;
+        line-height: 1.4 !important;
+        margin-bottom: 8px !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .note-content {
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 12px !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
     }
 
     .note-actions {
@@ -2040,9 +2068,28 @@ main .search-container .search-btn {
     }
 
     .note-btn {
-        width: 100%;
-        justify-content: center;
-        padding: 12px;
+        width: 100% !important;
+        font-size: 12px !important;
+        padding: 8px 12px !important;
+        text-align: center !important;
+    }
+
+    /* Notes Display Container Mobile Fix */
+    #notes-display {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 15px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    #notes-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
     }
 }
 
